@@ -1,0 +1,39 @@
+.id1 {
+  background-color: rgb(31, 206, 237);
+  display: inline-block;
+  border-radius: 20px;
+}
+
+.id1 label {
+  color: red;
+  font-size: 20px;
+}
+
+.id1 input {
+  margin-right: 1px;
+  border-radius: 10px;
+}
+
+/* .main-div {
+  width: 100%;
+  height: 200px;
+  background-color: red;
+  display: flex;
+  justify-content: center;
+} */
+.submit-button {
+  color: blue;
+  border-radius: 20px;
+  width: 100px;
+  margin-top: 7px;
+  margin-left: 7px;
+}
+
+.delete-movie-btn {
+  background-color: rgb(222, 45, 175);
+  border-radius: 10px;
+  width: 70px;
+}
+.h1-movie {
+  color: brown;
+}

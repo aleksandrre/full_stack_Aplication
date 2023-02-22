@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        img{
+            max-width: 150px;
+        }
+
+        label{
+            display: block;
+            margin: 10px;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="main-div">
+    <form  class="id1" action="http://localhost:4001"  id="create-movie-form">
+        <input type="hidden" name="id" id="id">
+        <label for="title">
+            Title
+            <input type="text" name="title" id="title">
+        </label>
+
+        <label for="director">
+            Director
+            <input type="text" name="director" id="director">
+        </label>
+
+        <label for="genre">
+            Genre
+            <input type="text" name="genre" id="genre">
+        </label>
+
+        <label for="release-date">
+            Release-date
+            <input type="text" name="release_date" id="release-date">
+        </label>
+
+        <label for="cover-image-url">
+            Cover-image-url
+            <input type="text" name="cover_image_url" id="cover-image-url">
+        </label>
+
+        <input class="submit-button" type="submit" name="submit" id="submit">
+    </form>
+</div>
+    <ul id="movies-list">
+        <!-- <li>
+            <article>
+                <h1></h1>
+                <img src="">
+                <p>Director: Genre:Release Date</p>
+            </article>
+        </li> -->
+    </ul>
+
+    <script src="./client.js"></script>
+    <script src="./template.js"></script>
+    <script>
+
+        let formMode='create';
+        let editingElement=null;
+
+        let movies=[];
+        async function main(){
+         movies=await getMovies();
+            let renderedMoviesTemplate="";
+
+        movies.forEach((movie) => {
+            renderedMoviesTemplate+=movieTemplate(movie);
+            
+        });
+
+        document.getElementById('movies-list').innerHTML=renderedMoviesTemplate;
+
+        
+        }
+        const createMovieFormElement=document.getElementById('create-movie-form');
+        createMovieFormElement.addEventListener('submit', (event)=>{
+            event.preventDefault();
+
+            const movie ={
+                id:document.getElementById('id').value,
+
+                title:document.getElementById('title').value,
+                director:document.getElementById('director').value,
+                genre:document.getElementById('genre').value,
+                release_date:document.getElementById('release-date').value,
+                cover_image_url:document.getElementById('cover-image-url').value
+            }
+
+            if(formMode!=='create'){
+                movie.id=document.getElementById('id').value;
+            }
+            let method=(formMode ==='create') ? 'POST':"PUT"
+            let url=(formMode ==='create') ? 'http://localhost:4001' : 'http://localhost:4001/'+ movie.id;
+            
+            const response= fetch(url, {
+                method:method,
+                body: JSON.stringify(movie),
+                headers:{
+                    'Accept':'application/json',
+                    'Content-Type':'application/json'
+                }
+            });
+            response.then(async (result) =>{
+
+                const responseBody= await result.json();
+                movie.id=responseBody.id;
+
+                if(formMode==='create'){
+                const moviesListElement=document.getElementById('movies-list')
+                moviesListElement.insertAdjacentHTML('afterbegin',movieTemplate(movie))
+ 
+                movies.push(movie)
+                }else{
+                    editingElement.querySelector('h1').textContent=movie.title;
+                    editingElement.querySelector('img').src=movie.cover_image_url;
+                    editingElement.querySelector('p').textContent=`
+                    Director:${movie.director} Genre:${movie.genre} Release Date:${movie.release_date}
+                    `
+                    ;
+
+                    for(let i=0; i<movies.length;i++){
+                        if(movies[i].id===movie.id){
+                            movies[i]=movie;
+                        }
+                    }
+
+                }
+            })
+            
+        })
+
+        const deleteMovieAction=(element, id) =>{
+
+            const answer=window.prompt('Are you sure you want to delete','yes')
+
+            if(answer==="yes"){
+            deleteMovie(id);
+            element.parentElement.closest('li').remove();
+            }
+        }
+
+        
+
+        const startEditingMovie=(element,id)=>{
+            editingElement=element.parentElement.closest('li')
+            formMode='editing'
+            let movie=movies.filter((movie) => id ===movie.id)
+
+            movie=movie[0];
+            document.getElementById('title').value=movie.title;
+            document.getElementById('director').value=movie.director
+            document.getElementById('genre').value=movie.genre
+            document.getElementById('release-date').value=movie.release_date
+            document.getElementById('cover-image-url').value=movie.cover_image_url
+            document.getElementById('id').value=movie.id
+
+
+
+        }
+        main();
+
+    </script>
+</body>
+</html>
+
